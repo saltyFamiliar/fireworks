@@ -2,9 +2,9 @@ import time
 import random
 import os
 
-# cols and rows must match fullscreen commandline display
-cols = 271
-rows = 70
+size = os.get_terminal_size()
+cols = size.columns
+rows = size.lines - 3
 index = [" " for i in range(cols * rows)]
 fws = []
 index_map = {
@@ -53,9 +53,8 @@ class fw_node:
         self.count += 1
         if self.fuse <= self.count:
             self.alive = False
-            keys = dir_map.keys()
-            for key in keys:
-                fws.append(fw_node(self.coords, key, self.strength - 1, int(self.fuse * 0.618), "*"))
+            for direction in dir_map.keys():
+                fws.append(fw_node(self.coords, direction, self.strength - 1, int(self.fuse * 0.618), "*"))
         
         if self.alive:
             self.index_val += index_map[self.direction]
@@ -80,7 +79,7 @@ def junk_collector():
 count = 2
 while count < 50 or fws:
     x = random.randint(0, 2000)
-    if x < 270:
+    if x < cols - 1:
         count+=1
         y = random.randint(5, 40)
         new_coords = (x, y)
@@ -91,5 +90,3 @@ while count < 50 or fws:
     print("".join(index))
     junk_collector()
     time.sleep(0.025)
-
-
