@@ -17,11 +17,11 @@ index_map = {
     "down_right":cols + 2,
     "down_left":cols - 2}
 
-coord_map = {
-    "up":1,
-    "down":-1,
-    "left":-1,
-    "right":1,
+dir_map = {
+    "up":(0, 1),
+    "down":(0, -1),
+    "left":(-1, 0),
+    "right":(1, 0),
     "up_right":(2, 1),
     "up_left":(-2, 1),
     "down_right":(2, -1),
@@ -33,10 +33,9 @@ class fw_node:
     global fws
     global cols
     global rows
-    def __init__(self, x, y, direction, strength, fuse, face):
-        self.x = x
-        self.y = y
-        self.index_val = cols * (rows-y) + x
+    def __init__(self, coords, direction, strength, fuse, face):
+        self.coords = coords 
+        self.index_val = cols * (rows-coords[1]) + coords[0]
         self.direction = direction
         self.strength = strength
         self.fuse = fuse
@@ -54,26 +53,19 @@ class fw_node:
         self.count += 1
         if self.fuse <= self.count:
             self.alive = False
-            keys = coord_map.keys()
+            keys = dir_map.keys()
             for key in keys:
-                fws.append(fw_node(self.x, self.y, key, self.strength - 1, int(self.fuse * 0.618), "*"))
+                fws.append(fw_node(self.coords, key, self.strength - 1, int(self.fuse * 0.618), "*"))
         
         if self.alive:
             self.index_val += index_map[self.direction]
             index[self.index_val] = self.face
-        
-            if self.direction == "up" or self.direction == "down":
-                self.y += coord_map[self.direction]
-            elif self.direction == "left" or self.direction == "right":
-                self.x += coord_map[self.direction]
-            else:
-                self.x += coord_map[self.direction][0]
-                self.y += coord_map[self.direction][1]
+            self.coords = (self.coords[0] + dir_map[self.direction][0], self.coords[1] + dir_map[self.direction][1])
 
 
 
-fws.append(fw_node(45, 10, "up", 3, 15, "|"))
-fws.append(fw_node(180, 10, "up", 3, 15, "|"))
+fws.append(fw_node((45, 10), "up", 3, 15, "|"))
+fws.append(fw_node((180, 10), "up", 3, 15, "|"))
 
 def junk_collector():
     global fws
@@ -91,7 +83,8 @@ while count < 50 or fws:
     if x < 270:
         count+=1
         y = random.randint(5, 40)
-        fws.append(fw_node(x, y, "up", 3, 20, "|"))
+        new_coords = (x, y)
+        fws.append(fw_node(new_coords, "up", 3, 20, "|"))
     
     [fw.proceed() for fw in fws]
     os.system('cls')
